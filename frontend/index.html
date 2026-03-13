@@ -136,10 +136,10 @@
       </div>
     </div>
     <div class="nav-right">
-      <button class="nav-ico-btn" onclick="showToast('No new notifications','🔔','Notifications')">
-        🔔 <span class="notif-dot">1</span>
+      <button class="nav-ico-btn" onclick="toggleNotifications()">
+        🔔 <span class="notif-dot" id="home-notif-badge">1</span>
       </button>
-      <div class="nav-user-chip" onclick="handleLogout()">
+      <div class="nav-user-chip" onclick="showProfile()">
         <div class="nav-avatar" id="user-avatar">?</div>
         <div class="nav-uname" id="user-name">...</div>
       </div>
@@ -191,11 +191,107 @@
   </div>
 </div>
 
+<!-- PROFILE PAGE -->
+<div id="profile" class="page profile-theme">
+  <div class="ambient" style="display:none;"></div>
+  <div class="grid" style="display:none;"></div>
+
+  <nav class="navbar profile-nav">
+    <div class="nav-logo">
+      <div class="nav-ico-btn" onclick="goHome()" style="background:#2563eb;color:#fff;border:none;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </div>
+      <div>
+        <div class="nav-title" style="color:#111">Campus Queue</div>
+        <div class="nav-subtitle" style="color:#666">Profile</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <button class="nav-ico-btn profile-nav-btn" onclick="toggleNotifications()">
+        🔔 <span class="notif-dot" style="top:4px;right:4px;" id="prof-notif-badge">1</span>
+      </button>
+      <div class="nav-ico-btn profile-nav-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+    </div>
+  </nav>
+
+  <div class="profile-body">
+    <div class="profile-card">
+      <div class="pc-header">
+        <div class="pc-avatar" id="prof-avatar">DU</div>
+        <div class="pc-title">
+          <div class="pc-name" id="prof-name">Demo User</div>
+          <div class="pc-sid" id="prof-sid">Student ID: 2024-00000</div>
+        </div>
+        <button class="btn-edit-prof" onclick="toggleEditProfile()">Edit</button>
+      </div>
+
+      <div id="prof-view-mode">
+        <div class="pc-row">
+          <span class="pc-lbl">Email</span>
+          <span class="pc-val" id="prof-email">123@cit.edu</span>
+        </div>
+        <div class="pc-row">
+          <span class="pc-lbl">Total Queues Joined</span>
+          <span class="pc-val" id="prof-queues">24</span>
+        </div>
+        <div class="pc-row" style="border-bottom:none;">
+          <span class="pc-lbl">Member Since</span>
+          <span class="pc-val" id="prof-since">February 2026</span>
+        </div>
+      </div>
+
+      <div id="prof-edit-mode" style="display:none; padding-top: 20px; border-top: 1px solid #eaeaea;">
+        <div class="field" style="margin-bottom: 12px;">
+          <label style="color:#555">Full Name</label>
+          <input type="text" id="edit-name" class="prof-input">
+        </div>
+        <div class="field" style="margin-bottom: 12px;">
+          <label style="color:#555">Email</label>
+          <input type="email" id="edit-email" class="prof-input" disabled>
+          <small style="color:#888; font-size:11px;">Email cannot be changed in demo mode.</small>
+        </div>
+        <div class="field">
+          <label style="color:#555">New Password (leave blank to keep)</label>
+          <div class="field-wrap">
+            <span class="field-icon" style="color:#888;">🔒</span>
+            <input type="password" id="edit-password" class="prof-input" style="padding-left: 42px;" placeholder="••••••••">
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top: 16px;">
+          <button class="btn-main" style="padding: 10px;" onclick="saveProfileData()">Save Changes</button>
+          <button class="btn-oauth prof-btn-cancel" style="padding: 10px;" onclick="toggleEditProfile()">Cancel</button>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="btn-main btn-admin">
+      🛡️ Admin Access
+    </button>
+    <button class="btn-signout" onclick="handleLogout()">
+      Sign Out
+    </button>
+  </div>
+</div>
+
 <div class="toast" id="toast">
   <div style="font-size:20px" id="t-icon">✅</div>
   <div>
     <div class="toast-title" id="t-title">Done</div>
     <div class="toast-msg" id="t-msg">Success</div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS DROPDOWN -->
+<div class="notif-dropdown" id="notif-dropdown">
+  <div class="nd-header">
+    <div class="nd-title">Notifications</div>
+    <button class="nd-clear" onclick="clearNotifications()">Clear all</button>
+  </div>
+  <div class="nd-body" id="notif-list">
+    <!-- Notifications injected here -->
   </div>
 </div>
 

@@ -1,7 +1,7 @@
-const SUPABASE_URL = 'sb_publishable_Ls8GSdWS5A5f24d7Mq_RCg_UgK3T0XK';
+const SUPABASE_URL = 'https://zitesenppfnjfhsyawop.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InppdGVzZW5wcGZuamZoc3lhd29wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MDU1NTEsImV4cCI6MjA4ODk4MTU1MX0.LoCn8otwgv0rPS8I4kXG2EeF2-Mx9PDblJ6kjXVBWzg';
 
-const isConfigured = !SUPABASE_URL.includes('YOUR_') && SUPABASE_URL.startsWith('http');
+const isConfigured = !SUPABASE_URL.includes('YOUR_') && SUPABASE_URL.includes('.supabase.co');
 
 let sb = null;
 

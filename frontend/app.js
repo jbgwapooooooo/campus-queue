@@ -104,11 +104,17 @@ async function joinQueue(serviceId, serviceName, waitTime) {
   }
 
   if (!isConfigured || !initSupabase()) {
+    const queueSvc = DEMO_SERVICES.find(s => s.id === serviceId);
+    let newPosition = queueSvc ? queueSvc.queue_count + 1 : 15;
+    
     myQueueEntry = {
       service_id: serviceId,
-      position: Math.floor(Math.random() * 5) + 3,
+      position: newPosition,
       status: 'waiting'
     };
+    
+    // Simulate user joining by actually bumping the count
+    if (queueSvc) queueSvc.queue_count++;
     updateQueueBanner(serviceName);
     renderCards(DEMO_SERVICES);
     showToast(`Position #${myQueueEntry.position} — ~${waitTime} min`, '✅', `Joined ${serviceName}`);

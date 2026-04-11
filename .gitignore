@@ -1,0 +1,8 @@
+*.zip
+.idea/
+.gradle/
+build/
+target/
+node_modules/
+*.class
+*.pyc

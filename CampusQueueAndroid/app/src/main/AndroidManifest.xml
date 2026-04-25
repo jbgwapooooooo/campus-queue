@@ -22,7 +22,12 @@
         
         <activity android:name=".features.auth.register.RegisterActivity"
             android:parentActivityName=".features.auth.login.LoginActivity" />
-        <activity android:name=".features.dashboard.DashboardActivity" />
+        <activity
+            android:name=".features.dashboard.DashboardActivity"
+            android:exported="false" />
+        <activity
+            android:name=".features.admin.dashboard.AdminDashboardActivity"
+            android:exported="false" />
         <activity android:name=".features.profile.view.ProfileActivity"
             android:parentActivityName=".features.dashboard.DashboardActivity" />
         <activity android:name=".features.profile.update.UpdateProfileActivity"

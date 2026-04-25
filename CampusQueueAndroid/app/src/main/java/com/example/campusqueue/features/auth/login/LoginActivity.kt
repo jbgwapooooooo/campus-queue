@@ -22,7 +22,7 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
         SessionManager.init(this)
         
         if (SessionManager.fetchToken() != null) {
-            navigateToDashboard()
+            routeUser()
             finish()
         }
 
@@ -48,11 +48,24 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
     
     override fun onLoginSuccess(token: String) {
         SessionManager.saveToken(token)
-        navigateToDashboard()
+        // Note: LoginPresenter already saved the email to SessionManager
+        routeUser()
         finish()
     }
+
     override fun navigateToRegister() { startActivity(Intent(this, RegisterActivity::class.java)) }
-    override fun navigateToDashboard() { startActivity(Intent(this, DashboardActivity::class.java)) }
+    
+    // Kept to satisfy LoginContract.View if needed, though we use routeUser now
+    override fun navigateToDashboard() { routeUser() }
+
+    private fun routeUser() {
+        val email = SessionManager.getEmail()
+        if (email == "admin@cit.edu") {
+            startActivity(Intent(this, com.example.campusqueue.features.admin.dashboard.AdminDashboardActivity::class.java))
+        } else {
+            startActivity(Intent(this, DashboardActivity::class.java))
+        }
+    }
     
     override fun onDestroy() {
         presenter.onDestroy()

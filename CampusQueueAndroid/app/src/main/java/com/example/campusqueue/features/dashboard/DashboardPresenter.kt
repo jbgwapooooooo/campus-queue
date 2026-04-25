@@ -14,6 +14,10 @@ class DashboardPresenter(private var view: DashboardContract.View?) : DashboardC
 
     override fun fetchDashboard() {
         view?.showLoading()
+        fetchDashboardData()
+    }
+
+    private fun fetchDashboardData() {
         RetrofitClient.instance.getDashboard().enqueue(object : Callback<SupabaseUserResponse> {
             override fun onResponse(call: Call<SupabaseUserResponse>, response: Response<SupabaseUserResponse>) {
                 if (response.isSuccessful) {
@@ -28,7 +32,7 @@ class DashboardPresenter(private var view: DashboardContract.View?) : DashboardC
                 } else {
                     view?.hideLoading()
                     if (response.code() == 401) view?.onUnauthorized()
-                    else view?.showError("Failed to fetch dashboard user")
+                    else view?.showError("Failed to fetch profile")
                 }
             }
             override fun onFailure(call: Call<SupabaseUserResponse>, t: Throwable) {
@@ -43,7 +47,8 @@ class DashboardPresenter(private var view: DashboardContract.View?) : DashboardC
             override fun onResponse(call: Call<List<Service>>, response: Response<List<Service>>) {
                 if (response.isSuccessful) {
                     val services = response.body() ?: emptyList()
-                    view?.onServicesLoaded(services)
+                    val uniqueServices = services.distinctBy { it.name }
+                    view?.onServicesLoaded(uniqueServices)
                     
                     RetrofitClient.instance.getMyQueueEntry("eq.$userId").enqueue(object : Callback<List<QueueEntry>> {
                         override fun onResponse(call: Call<List<QueueEntry>>, response: Response<List<QueueEntry>>) {
@@ -56,22 +61,22 @@ class DashboardPresenter(private var view: DashboardContract.View?) : DashboardC
                                     view?.onActiveQueueLoaded(null)
                                 }
                             } else {
-                                view?.showError("Failed to fetch active queue")
+                                view?.showError("Queue check failed")
                             }
                         }
                         override fun onFailure(call: Call<List<QueueEntry>>, t: Throwable) {
                             view?.hideLoading()
-                            view?.showError("Network Error fetching queue")
+                            view?.showError("Queue networking error")
                         }
                     })
                 } else {
                     view?.hideLoading()
-                    view?.showError("Failed to fetch services")
+                    view?.showError("Services fetch failed")
                 }
             }
             override fun onFailure(call: Call<List<Service>>, t: Throwable) {
                 view?.hideLoading()
-                view?.showError("Network Error fetching services")
+                view?.showError("Services networking error")
             }
         })
     }
@@ -79,7 +84,7 @@ class DashboardPresenter(private var view: DashboardContract.View?) : DashboardC
     override fun joinQueue(serviceId: Int, currentQueueCount: Int) {
         val uid = currentUserId
         if (uid == null) {
-            view?.showError("User not authenticated properly")
+            view?.showError("Please wait for profile to load")
             return
         }
         view?.showLoading()
@@ -89,18 +94,20 @@ class DashboardPresenter(private var view: DashboardContract.View?) : DashboardC
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     view?.onQueueJoined()
-                    fetchDashboard()
+                    fetchDashboardData()
                 } else {
                     view?.hideLoading()
-                    view?.showError("Failed to join queue")
+                    view?.showError("Join failed")
                 }
             }
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 view?.hideLoading()
-                view?.showError("Network Error joining queue")
+                view?.showError("Join networking error")
             }
         })
     }
     
-    override fun onDestroy() { view = null }
+    override fun onDestroy() { 
+        view = null 
+    }
 }

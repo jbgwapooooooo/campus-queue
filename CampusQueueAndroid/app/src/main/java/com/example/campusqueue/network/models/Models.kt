@@ -12,6 +12,7 @@ data class UpdateProfileRequest(
 data class ChangePasswordRequest(val password: String)
 data class PublicUserUpdateRequest(val full_name: String, val avatar_base64: String? = null)
 data class QueueJoinRequest(val user_id: String, val service_id: Int, val position: Int, val status: String = "waiting")
+data class QueueStatusUpdateRequest(val status: String)
 
 // Responses
 data class SupabaseAuthResponse(
@@ -40,11 +41,17 @@ data class Service(
     @SerializedName("accent_color") val accent_color: String?
 )
 
+data class QueueUser(
+    @SerializedName("full_name") val full_name: String?,
+    @SerializedName("email") val email: String?
+)
+
 data class QueueEntry(
     @SerializedName("id") val id: String,
     @SerializedName("user_id") val user_id: String,
     @SerializedName("service_id") val service_id: Int,
     @SerializedName("position") val position: Int,
     @SerializedName("status") val status: String,
-    @SerializedName("services") val services: Service? = null // Using embed if we select "*, services(name)"
+    @SerializedName("services") val services: Service? = null,
+    @SerializedName("users") val users: QueueUser? = null
 )

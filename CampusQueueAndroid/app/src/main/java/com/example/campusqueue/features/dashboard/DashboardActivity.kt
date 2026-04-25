@@ -66,7 +66,18 @@ class DashboardActivity : AppCompatActivity(), DashboardContract.View {
     override fun onActiveQueueLoaded(queueEntry: QueueEntry?) {
         if (queueEntry != null) {
             llActiveQueue.visibility = View.VISIBLE
-            tvActiveQueueService.text = "In queue: ${queueEntry.services?.name ?: "Service"}"
+            
+            if (queueEntry.status == "called") {
+                llActiveQueue.setBackgroundResource(android.R.color.holo_red_dark)
+                tvActiveQueueService.setTextColor(android.graphics.Color.WHITE)
+                tvActiveQueuePosition.setTextColor(android.graphics.Color.WHITE)
+                tvActiveQueueService.text = "CALLED! Go to office"
+            } else {
+                llActiveQueue.setBackgroundColor(android.graphics.Color.parseColor("#E0F2FE"))
+                tvActiveQueueService.setTextColor(android.graphics.Color.parseColor("#0369A1"))
+                tvActiveQueuePosition.setTextColor(android.graphics.Color.parseColor("#0284C7"))
+                tvActiveQueueService.text = "In queue: ${queueEntry.services?.name ?: "Service"}"
+            }
             tvActiveQueuePosition.text = "#${queueEntry.position}"
         } else {
             llActiveQueue.visibility = View.GONE

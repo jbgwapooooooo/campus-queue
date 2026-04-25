@@ -42,6 +42,16 @@ interface ApiService {
     @GET("rest/v1/queue_entries?select=id")
     fun getUserQueues(@retrofit2.http.Query("user_id") userId: String): Call<List<Map<String, String>>>
     
+    // Admin endpoints
+    @GET("rest/v1/queue_entries?select=*,services(id,name,icon,wait_time_min,queue_count,is_open,accent_color),users(full_name,email)&status=eq.waiting&order=joined_at.asc")
+    fun getAllQueueEntries(): Call<List<QueueEntry>>
+
+    @PATCH("rest/v1/queue_entries")
+    fun updateQueueStatus(
+        @retrofit2.http.Query("id") idQuery: String, // Expects "eq.$id"
+        @Body request: QueueStatusUpdateRequest
+    ): Call<Void>
+
     // We mock Dashboard stats by fetching Public services for example, or simply a GET to user
     @GET("auth/v1/user")
     fun getDashboard(): Call<SupabaseUserResponse>

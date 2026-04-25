@@ -29,7 +29,11 @@ class UpdateProfilePresenter(private var view: UpdateProfileContract.View?) : Up
     }
 
     override fun updateProfileInfo(name: String, email: String, currentPass: String, newPass: String, avatarBase64: String?) {
-        val needsReauth = email.isNotEmpty() || newPass.isNotEmpty()
+        val currentEmail = SessionManager.getEmail() ?: ""
+        val emailChanged = email.isNotEmpty() && email != currentEmail
+        val passwordChanged = newPass.isNotEmpty()
+        val needsReauth = emailChanged || passwordChanged
+
         if (needsReauth && currentPass.isEmpty()) {
             view?.showError("Current password required to change email or password")
             return
@@ -39,11 +43,10 @@ class UpdateProfilePresenter(private var view: UpdateProfileContract.View?) : Up
 
         if (needsReauth) {
             // Re-authenticate first, then update
-            val currentEmail = SessionManager.getEmail() ?: ""
             RetrofitClient.instance.login(LoginRequest(currentEmail, currentPass)).enqueue(object : Callback<SupabaseAuthResponse> {
                 override fun onResponse(call: Call<SupabaseAuthResponse>, response: Response<SupabaseAuthResponse>) {
                     if (response.isSuccessful) {
-                        performUpdate(name, email, newPass, avatarBase64)
+                        performUpdate(name, if (emailChanged) email else null, if (passwordChanged) newPass else null, avatarBase64)
                     } else {
                         view?.hideLoading()
                         view?.showError("Current password is incorrect")
@@ -55,19 +58,19 @@ class UpdateProfilePresenter(private var view: UpdateProfileContract.View?) : Up
                 }
             })
         } else {
-            performUpdate(name, email, newPass, avatarBase64)
+            performUpdate(name, if (emailChanged) email else null, if (passwordChanged) newPass else null, avatarBase64)
         }
     }
 
-    private fun performUpdate(name: String, email: String, newPass: String, avatarBase64: String?) {
+    private fun performUpdate(name: String, emailToSubmit: String?, newPassToSubmit: String?, avatarBase64: String?) {
         val metadataMap = mutableMapOf<String, String>()
         if (name.isNotEmpty()) metadataMap["full_name"] = name
         if (avatarBase64 != null) metadataMap["avatar_base64"] = avatarBase64
 
         val req = UpdateProfileRequest(
             data = if (metadataMap.isNotEmpty()) metadataMap else null,
-            email = if (email.isNotEmpty()) email else null,
-            password = if (newPass.isNotEmpty()) newPass else null
+            email = emailToSubmit,
+            password = newPassToSubmit
         )
 
         RetrofitClient.instance.updateProfile(req).enqueue(object : Callback<SupabaseUserResponse> {

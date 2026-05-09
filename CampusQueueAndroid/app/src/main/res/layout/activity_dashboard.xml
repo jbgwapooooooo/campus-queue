@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="top|center_horizontal">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dashboard"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"/>
+
+    <LinearLayout
+        android:id="@+id/llActiveQueue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#e0f2fe"
+        android:padding="16dp"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp">
+        <TextView
+            android:id="@+id/tvActiveQueueService"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="In queue: Service"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#0369a1"/>
+        <TextView
+            android:id="@+id/tvActiveQueuePosition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="#--"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#0284c7"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvServices"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnProfile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Go to Profile"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:backgroundTint="@color/teal_700"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>

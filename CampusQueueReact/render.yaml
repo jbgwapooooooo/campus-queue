@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: campus-queue-react
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_SUPABASE_URL
+        value: https://toayrzzqhnspxhkaljwm.supabase.co
+      - key: VITE_SUPABASE_ANON_KEY
+        value: sb_publishable_0o84rUOebxJBHImPwKt-4Q_XRJzTlzA

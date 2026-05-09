@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#f8fafc"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CIT Control Center"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#0f172a"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Admin Mode"
+                android:textColor="#64748b"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnSignOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign Out"
+            android:backgroundTint="#ef4444"
+            android:textColor="#ffffff"
+            style="?android:attr/borderlessButtonStyle"/>
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/tvEmptyState"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="No students in queue."
+        android:gravity="center"
+        android:visibility="gone"
+        android:textColor="#94a3b8"
+        android:textSize="18sp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvAdminQueue"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp"
+        android:clipToPadding="false"/>
+
+    <Button
+        android:id="@+id/btnSignOutBottom"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="Sign Out of Admin"
+        android:backgroundTint="#ef4444"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        android:layout_gravity="bottom"/>
+
+</LinearLayout>

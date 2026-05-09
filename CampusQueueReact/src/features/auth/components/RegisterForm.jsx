@@ -1,10 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { supabase } from '../../../supabaseClient';
 
 /**
  * Vertical Slice: Auth (Authentication feature)
  * Contains everything specific to user registration.
  */
 export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    if (!email || !password || !fullName) {
+      setErrorMsg('Please fill in all fields');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg(null);
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        }
+      }
+    });
+
+    if (error) {
+      setErrorMsg(error.message);
+      setLoading(false);
+    } else {
+      setLoading(false);
+      // Supabase may require email confirmation depending on settings.
+      // Assuming auto-login or redirect for now.
+      if (onRegister) onRegister();
+    }
+  };
+
   return (
     <div className="login-wrap page active fade-in">
       <div className="brand-panel">
@@ -28,11 +66,18 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
           <div className="form-h1">Create<br/>Account.</div>
           <div className="form-sub">Sign up to access CIT services</div>
           
+          {errorMsg && <div className="err-msg show">{errorMsg}</div>}
+
           <div className="field">
             <label>Full Name</label>
             <div className="field-wrap">
               <span className="field-icon">👤</span>
-              <input type="text" placeholder="John Doe" />
+              <input 
+                type="text" 
+                placeholder="John Doe" 
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
             </div>
           </div>
           
@@ -40,7 +85,12 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
             <label>Email address</label>
             <div className="field-wrap">
               <span className="field-icon">✉</span>
-              <input type="email" placeholder="your.email@cit.edu" />
+              <input 
+                type="email" 
+                placeholder="your.email@cit.edu" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
           </div>
           
@@ -48,11 +98,18 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
             <label>Password</label>
             <div className="field-wrap">
               <span className="field-icon">🔒</span>
-              <input type="password" placeholder="••••••••" />
+              <input 
+                type="password" 
+                placeholder="••••••••" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
           </div>
           
-          <button className="btn-main btn-glow" onClick={onRegister}>Sign Up</button>
+          <button className="btn-main btn-glow" onClick={handleRegister} disabled={loading}>
+            {loading ? 'Creating Account...' : 'Sign Up'}
+          </button>
           
           <div className="form-foot">
             Already have an account? <span className="flink" onClick={onNavigateLogin} style={{cursor: 'pointer'}}>Sign in</span>

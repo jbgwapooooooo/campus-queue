@@ -2,9 +2,9 @@ import React from 'react';
 
 /**
  * Vertical Slice: Auth (Authentication feature)
- * Contains everything specific to user authentication.
+ * Contains everything specific to user registration.
  */
-export const LoginForm = ({ onLogin, onNavigateRegister }) => {
+export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
   return (
     <div className="login-wrap page active fade-in">
       <div className="brand-panel">
@@ -17,7 +17,7 @@ export const LoginForm = ({ onLogin, onNavigateRegister }) => {
         </div>
         <div className="bp-hero slide-up" style={{ animationDelay: '0.1s' }}>
           <div className="bp-big pop-in">Q</div>
-          <div className="bp-line1">No more<br/><span className="bp-line2">waiting around.</span></div>
+          <div className="bp-line1">Join the<br/><span className="bp-line2">fast lane.</span></div>
           <div className="bp-powered">Powered by React</div>
         </div>
       </div>
@@ -25,8 +25,16 @@ export const LoginForm = ({ onLogin, onNavigateRegister }) => {
       <div className="form-panel">
         <div className="form-inner slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="form-eyebrow">Student Portal</div>
-          <div className="form-h1">Welcome<br/>back.</div>
-          <div className="form-sub">Sign in to access CIT services</div>
+          <div className="form-h1">Create<br/>Account.</div>
+          <div className="form-sub">Sign up to access CIT services</div>
+          
+          <div className="field">
+            <label>Full Name</label>
+            <div className="field-wrap">
+              <span className="field-icon">👤</span>
+              <input type="text" placeholder="John Doe" />
+            </div>
+          </div>
           
           <div className="field">
             <label>Email address</label>
@@ -44,10 +52,10 @@ export const LoginForm = ({ onLogin, onNavigateRegister }) => {
             </div>
           </div>
           
-          <button className="btn-main btn-glow" onClick={onLogin}>Sign In</button>
+          <button className="btn-main btn-glow" onClick={onRegister}>Sign Up</button>
           
           <div className="form-foot">
-            Don't have an account? <span className="flink" onClick={onNavigateRegister} style={{cursor: 'pointer'}}>Sign up</span>
+            Already have an account? <span className="flink" onClick={onNavigateLogin} style={{cursor: 'pointer'}}>Sign in</span>
           </div>
         </div>
       </div>

@@ -15,62 +15,72 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
   const handleRegister = async (e) => {
     e.preventDefault();
     
-    // 1. Validations
-    if (!email || !password || !fullName) {
-      setErrorMsg('Please fill in all fields');
-      return;
-    }
-
-    if (!email.toLowerCase().endsWith('@cit.edu')) {
-      setErrorMsg('Please use your official @cit.edu email');
-      return;
-    }
-
-    if (password.length < 6) {
-      setErrorMsg('Password must be at least 6 characters');
-      return;
-    }
-
-    setLoading(true);
-    setErrorMsg(null);
-
-    // 2. Auth Sign Up
-    const { data: authData, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-        }
+    try {
+      // 1. Validations
+      if (!email || !password || !fullName) {
+        setErrorMsg('Please fill in all fields');
+        return;
       }
-    });
 
-    if (error) {
-      setErrorMsg(error.message);
-      setLoading(false);
-      return;
-    }
+      if (!email.toLowerCase().endsWith('@cit.edu')) {
+        setErrorMsg('Please use your official @cit.edu email');
+        return;
+      }
 
-    if (authData && authData.user) {
-      // 3. Final Database Sync
-      const { error: dbError } = await supabase
-        .from('users')
-        .upsert({ 
-          auth_id: authData.user.id,
-          email: email,
-          full_name: fullName 
-        }, { onConflict: 'auth_id' });
+      if (password.length < 6) {
+        setErrorMsg('Password must be at least 6 characters');
+        return;
+      }
 
-      if (dbError) {
-        console.error('Registration Sync Error:', dbError);
-        setErrorMsg('Database sync failed: ' + dbError.message);
+      setLoading(true);
+      setErrorMsg(null);
+
+      // 2. Auth Sign Up
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: fullName }
+        }
+      });
+
+      // Handle common Auth errors
+      if (authError) {
+        if (authError.message.includes('already registered')) {
+          setErrorMsg('This email is already registered. Please sign in instead.');
+        } else {
+          setErrorMsg(authError.message);
+        }
         setLoading(false);
         return;
       }
-    }
 
-    setLoading(false);
-    if (onRegister) onRegister();
+      // 3. Database Sync (Using a separate block to ensure it runs)
+      if (authData?.user) {
+        const { error: dbError } = await supabase
+          .from('users')
+          .upsert({ 
+            auth_id: authData.user.id,
+            email: email.toLowerCase(),
+            full_name: fullName 
+          }, { onConflict: 'auth_id' });
+
+        if (dbError) {
+          console.error('CRITICAL: Database Sync Failed', dbError);
+          setErrorMsg(`Database sync failed: ${dbError.message} (${dbError.code})`);
+          setLoading(false);
+          return;
+        }
+      }
+
+      setLoading(false);
+      if (onRegister) onRegister();
+      
+    } catch (err) {
+      console.error('Unexpected Registration Error:', err);
+      setErrorMsg('An unexpected error occurred. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (

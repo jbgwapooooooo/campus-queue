@@ -22,7 +22,7 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
     setLoading(true);
     setErrorMsg(null);
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data: authData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -36,6 +36,23 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
       setErrorMsg(error.message);
       setLoading(false);
     } else {
+      // 2. Sync with public.users table
+      // We use upsert to be safe in case the Auth user was created but DB sync failed previously
+      const { error: dbError } = await supabase
+        .from('users')
+        .upsert({ 
+          auth_id: authData.user.id,
+          email: email,
+          full_name: fullName 
+        }, { onConflict: 'auth_id' });
+
+      if (dbError) {
+        console.error('Registration DB Error:', dbError);
+        setErrorMsg('Database sync failed: ' + dbError.message);
+        setLoading(false);
+        return;
+      }
+
       setLoading(false);
       // Supabase may require email confirmation depending on settings.
       // Assuming auto-login or redirect for now.

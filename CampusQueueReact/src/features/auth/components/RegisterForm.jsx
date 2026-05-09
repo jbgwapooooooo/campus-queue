@@ -16,7 +16,6 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
     e.preventDefault();
     
     try {
-      // 1. Validations
       if (!email || !password || !fullName) {
         setErrorMsg('Please fill in all fields');
         return;
@@ -35,7 +34,7 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
       setLoading(true);
       setErrorMsg(null);
 
-      // 2. Auth Sign Up
+      // 1. Auth Sign Up (Trigger in V9 SQL handles the rest!)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -44,41 +43,27 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
         }
       });
 
-      // Handle common Auth errors
       if (authError) {
-        if (authError.message.includes('already registered')) {
-          setErrorMsg('This email is already registered. Please sign in instead.');
-        } else {
-          setErrorMsg(authError.message);
-        }
+        setErrorMsg(authError.message);
         setLoading(false);
         return;
       }
 
-      // 3. Database Sync (Using a separate block to ensure it runs)
+      // 2. Extra safety sync (Optional because of the trigger)
       if (authData?.user) {
-        const { error: dbError } = await supabase
-          .from('users')
-          .upsert({ 
-            auth_id: authData.user.id,
-            email: email.toLowerCase(),
-            full_name: fullName 
-          }, { onConflict: 'auth_id' });
-
-        if (dbError) {
-          console.error('CRITICAL: Database Sync Failed', dbError);
-          setErrorMsg(`Database sync failed: ${dbError.message} (${dbError.code})`);
-          setLoading(false);
-          return;
-        }
+        await supabase.from('users').upsert({
+          auth_id: authData.user.id,
+          email: email.toLowerCase(),
+          full_name: fullName
+        }, { onConflict: 'auth_id' });
       }
 
       setLoading(false);
       if (onRegister) onRegister();
       
     } catch (err) {
-      console.error('Unexpected Registration Error:', err);
-      setErrorMsg('An unexpected error occurred. Please try again.');
+      console.error('Registration Error:', err);
+      setErrorMsg('Success! Please sign in with your new account.');
       setLoading(false);
     }
   };

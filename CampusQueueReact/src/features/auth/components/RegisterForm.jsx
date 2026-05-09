@@ -44,7 +44,7 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
   };
 
   return (
-    <div className="login-wrap page active fade-in">
+    <div className="register-wrap page active fade-in">
       <div className="brand-panel">
         <div className="bp-logo slide-up">
           <div className="bp-icon pulse-soft">🎓</div>

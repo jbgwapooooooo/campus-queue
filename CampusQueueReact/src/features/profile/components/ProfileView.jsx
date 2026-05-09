@@ -12,6 +12,8 @@ export const ProfileView = ({ onBack }) => {
   const [password, setPassword] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null); // Local file for staging
+  const [previewUrl, setPreviewUrl] = useState(null); // Local URL for preview
   const [message, setMessage] = useState({ text: '', type: '' });
   const [loading, setLoading] = useState(true);
 
@@ -35,47 +37,14 @@ export const ProfileView = ({ onBack }) => {
     }
   };
 
-  const uploadAvatar = async (event) => {
+  const handleFileChange = (event) => {
     try {
-      setUploading(true);
-      setMessage({ text: '', type: '' });
-
-      if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('You must select an image to upload.');
-      }
-
+      if (!event.target.files || event.target.files.length === 0) return;
       const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      // Upload to avatars bucket
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      // Get public URL
-      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-      
-      const newAvatarUrl = data.publicUrl;
-      setAvatarUrl(newAvatarUrl);
-
-      // Save avatar_url to user metadata
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: { avatar_url: newAvatarUrl }
-      });
-
-      if (updateError) throw updateError;
-      
-      setMessage({ text: 'Avatar uploaded successfully!', type: 'success' });
+      setAvatarFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
     } catch (error) {
-      setMessage({ text: error.message || 'Error uploading avatar', type: 'error' });
-    } finally {
-      setUploading(false);
+      alert('Error selecting file: ' + error.message);
     }
   };
 
@@ -84,22 +53,65 @@ export const ProfileView = ({ onBack }) => {
       setLoading(true);
       setMessage({ text: '', type: '' });
 
+      let finalAvatarUrl = avatarUrl;
+
+      // 1. Upload new image if selected
+      if (avatarFile) {
+        const fileExt = avatarFile.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        
+        // Upload the file to the 'avatars' bucket
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, avatarFile);
+
+        if (uploadError) throw uploadError;
+
+        // GENERATE THE FULL DIRECT URL
+        // This creates a link like: https://[project-id].supabase.co/storage/v1/object/public/avatars/[filename]
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+        
+        finalAvatarUrl = publicUrl;
+      }
+
+      // 2. Update Auth Metadata (for Login session)
       const updates = {
-        data: {
+        data: { 
           full_name: fullName,
+          avatar_url: finalAvatarUrl 
         }
       };
-
+      
       if (password) {
         updates.password = password;
       }
 
-      const { error } = await supabase.auth.updateUser(updates);
+      const { error: authError } = await supabase.auth.updateUser(updates);
+      if (authError) throw authError;
 
-      if (error) throw error;
+      // 3. Update Public Database (for Admin & Dashboard view)
+      // We use upsert to either create or update the profile based on the auth_id
+      const { error: dbError } = await supabase
+        .from('users')
+        .upsert({ 
+          auth_id: user.id,
+          email: user.email,
+          full_name: fullName,
+          avatar_url: finalAvatarUrl // Ensure this matches your SQL column name
+        }, { onConflict: 'auth_id' });
+
+      if (dbError) {
+        console.error('Database Sync Error:', dbError);
+        throw new Error('Database sync failed: ' + dbError.message);
+      }
       
-      setMessage({ text: 'Profile updated successfully!', type: 'success' });
-      setPassword(''); // Clear password field
+      setAvatarUrl(finalAvatarUrl);
+      setAvatarFile(null);
+      setPreviewUrl(null);
+      setMessage({ text: 'Profile updated successfully across all systems!', type: 'success' });
+      setPassword('');
     } catch (error) {
       setMessage({ text: error.message || 'Error updating profile', type: 'error' });
     } finally {
@@ -132,8 +144,8 @@ export const ProfileView = ({ onBack }) => {
       <div className="profile-body">
         <div className="profile-card" style={{ paddingBottom: '30px' }}>
           <div className="pc-header" style={{ flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="Avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} />
+            {previewUrl || avatarUrl ? (
+              <img src={previewUrl || avatarUrl} alt="Avatar" style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #6366f1' }} />
             ) : (
               <div className="pc-avatar" style={{ width: '80px', height: '80px', fontSize: '32px' }}>
                 {fullName ? fullName.charAt(0).toUpperCase() : (email ? email.charAt(0).toUpperCase() : 'U')}
@@ -142,12 +154,11 @@ export const ProfileView = ({ onBack }) => {
             
             <div style={{ textAlign: 'center' }}>
               <label className="btn-edit-prof" style={{ cursor: 'pointer', display: 'inline-block' }}>
-                {uploading ? 'Uploading...' : 'Change Picture'}
+                Change Picture
                 <input 
                   type="file" 
                   accept="image/*" 
-                  onChange={uploadAvatar} 
-                  disabled={uploading}
+                  onChange={handleFileChange} 
                   style={{ display: 'none' }} 
                 />
               </label>
@@ -155,7 +166,7 @@ export const ProfileView = ({ onBack }) => {
             
             <div className="pc-title" style={{ textAlign: 'center' }}>
               <div className="pc-name">{fullName || 'Student'}</div>
-              {user?.user_metadata?.role === 'admin' && (
+              {user?.email === 'admin@cit.edu' && (
                 <div style={{ background: '#ef4444', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', display: 'inline-block', marginTop: '5px' }}>Admin</div>
               )}
             </div>

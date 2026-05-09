@@ -56,18 +56,19 @@ body {
 #setup-banner.hidden { display: none; }
 
 #login { align-items: stretch; position: relative; }
-.login-wrap {
-  position: relative; z-index: 1;
-  display: grid; grid-template-columns: 1fr 1fr;
+.login-wrap, .register-wrap {
+  display: flex;
   min-height: 100vh;
+  width: 100%;
 }
 
 .brand-panel {
+  flex: 1;
   background: linear-gradient(160deg, #0d0e1a 0%, #111228 100%);
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
-  justify-content: space-between;
-  padding: 52px; overflow: hidden; position: relative;
+  justify-content: center;
+  padding: 80px; overflow: hidden; position: relative;
 }
 .brand-panel::after {
   content: ''; position: absolute;
@@ -75,7 +76,7 @@ body {
   width: 400px; height: 400px; border-radius: 50%;
   background: radial-gradient(circle, rgba(108,99,255,0.1), transparent 70%);
 }
-.bp-logo { display: flex; align-items: center; gap: 14px; }
+.bp-logo { display: flex; align-items: center; gap: 14px; margin-bottom: 40px; }
 .bp-icon {
   width: 46px; height: 46px;
   background: linear-gradient(135deg, var(--accent), #8b5cf6);
@@ -84,22 +85,22 @@ body {
 }
 .bp-name { font-family: var(--fh); font-size: 19px; font-weight: 700; }
 .bp-tag { font-size: 11px; color: var(--muted); letter-spacing: 1.8px; text-transform: uppercase; margin-top: 2px; }
-.bp-hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 48px 0 24px; }
+.bp-hero { display: flex; flex-direction: column; justify-content: center; }
 .bp-big {
-  font-family: var(--fh); font-size: 88px; font-weight: 800;
-  letter-spacing: -5px; line-height: 0.9;
+  font-family: var(--fh); font-size: 100px; font-weight: 800;
+  letter-spacing: -6px; line-height: 0.8;
   background: linear-gradient(135deg, var(--accent2), rgba(168,158,255,0.25));
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text; margin-bottom: 16px;
+  background-clip: text; margin-bottom: 20px;
 }
-.bp-line1 { font-family: var(--fh); font-size: 32px; font-weight: 800; line-height: 1.15; }
+.bp-line1 { font-family: var(--fh); font-size: 42px; font-weight: 800; line-height: 1.1; }
 .bp-line2 { color: var(--accent2); }
 .bp-powered {
   display: inline-flex; align-items: center; gap: 8px;
   background: rgba(45,212,160,0.08); border: 1px solid rgba(45,212,160,0.2);
   border-radius: 40px; padding: 6px 14px;
   font-size: 12px; color: var(--ok); font-weight: 500;
-  margin-top: 20px; width: fit-content;
+  margin-top: 40px; width: fit-content;
 }
 .bp-powered::before {
   content: ''; width: 7px; height: 7px; border-radius: 50%;
@@ -111,9 +112,10 @@ body {
 .bs-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
 .form-panel {
+  flex: 1;
   background: var(--bg);
   display: flex; align-items: center; justify-content: center;
-  padding: 52px 40px;
+  padding: 60px;
 }
 .form-inner { width: 100%; max-width: 400px; }
 .form-eyebrow {
@@ -422,7 +424,7 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 860px) {
-  .login-wrap { grid-template-columns: 1fr; }
+  .login-wrap, .register-wrap { flex-direction: column; }
   .brand-panel { display: none; }
   .navbar { padding: 0 20px; }
   .home-body { padding: 28px 20px; }

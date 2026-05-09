@@ -8,7 +8,10 @@ async function createAdmin() {
         body: JSON.stringify({ 
             email: 'admin@cit.edu', 
             password: 'admin123',
-            data: { full_name: 'System Administrator' }
+            data: { 
+                full_name: 'System Administrator',
+                role: 'admin'
+            }
         })
     });
     const authData = await authRes.json();

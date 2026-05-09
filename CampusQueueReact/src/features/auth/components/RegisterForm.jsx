@@ -14,14 +14,27 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    
+    // 1. Validations
     if (!email || !password || !fullName) {
       setErrorMsg('Please fill in all fields');
+      return;
+    }
+
+    if (!email.toLowerCase().endsWith('@cit.edu')) {
+      setErrorMsg('Please use your official @cit.edu email');
+      return;
+    }
+
+    if (password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters');
       return;
     }
 
     setLoading(true);
     setErrorMsg(null);
 
+    // 2. Auth Sign Up
     const { data: authData, error } = await supabase.auth.signUp({
       email,
       password,
@@ -35,9 +48,11 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
     if (error) {
       setErrorMsg(error.message);
       setLoading(false);
-    } else {
-      // 2. Sync with public.users table
-      // We use upsert to be safe in case the Auth user was created but DB sync failed previously
+      return;
+    }
+
+    if (authData && authData.user) {
+      // 3. Final Database Sync
       const { error: dbError } = await supabase
         .from('users')
         .upsert({ 
@@ -47,17 +62,15 @@ export const RegisterForm = ({ onRegister, onNavigateLogin }) => {
         }, { onConflict: 'auth_id' });
 
       if (dbError) {
-        console.error('Registration DB Error:', dbError);
+        console.error('Registration Sync Error:', dbError);
         setErrorMsg('Database sync failed: ' + dbError.message);
         setLoading(false);
         return;
       }
-
-      setLoading(false);
-      // Supabase may require email confirmation depending on settings.
-      // Assuming auto-login or redirect for now.
-      if (onRegister) onRegister();
     }
+
+    setLoading(false);
+    if (onRegister) onRegister();
   };
 
   return (
